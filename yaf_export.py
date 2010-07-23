@@ -1,7 +1,7 @@
 #!BPY
 
 __author__ = ['Bert Buchholz, Alvaro Luna, Michele Castigliego, Rodrigo Placencia']
-__version__ = '0.1.x'
+__version__ = '0.1.x-GSoC-Ronnie'
 __url__ = ['http://yafaray.org']
 __bpydoc__ = ""
 
@@ -410,6 +410,8 @@ class yafrayRender:
 		if "Direct lighting" == light_type:
 			yi.paramsSetString("type", "directlighting");
 			yi.paramsSetBool("caustics", renderer["caustics"])
+			yi.paramsSetBool("do_AO", renderer["do_AO"])
+			yi.paramsSetBool("useSSS", renderer["useSSS"])
 
 			if renderer["caustics"]:
 				yi.paramsSetInt("photons", renderer["photons"])
@@ -418,11 +420,17 @@ class yafrayRender:
 				yi.paramsSetFloat("caustic_radius", renderer["caustic_radius"])
 
 			if renderer["do_AO"]:
-				yi.paramsSetBool("do_AO", renderer["do_AO"])
 				yi.paramsSetInt("AO_samples", renderer["AO_samples"])
 				yi.paramsSetFloat("AO_distance", renderer["AO_distance"])
 				c = renderer["AO_color"];
 				yi.paramsSetColor("AO_color", c[0], c[1], c[2])
+
+			if renderer["useSSS"]:
+				yi.paramsSetInt("sssPhotons", renderer["sssPhotons"])
+				yi.paramsSetInt("sssDepth", renderer["sssDepth"])
+				yi.paramsSetInt("singleScatterSamples", renderer["sssSingleScatterSamples"])
+				yi.paramsSetFloat("sssScale", renderer["sssScale"])
+
 		elif "Photon mapping" == light_type:
 			# photon integrator
 			yi.paramsSetString("type", "photonmapping")
@@ -437,6 +445,14 @@ class yafrayRender:
 			yi.paramsSetInt("caustic_mix", renderer["caustic_mix"])
 			yi.paramsSetBool("finalGather", renderer["finalGather"])
 			yi.paramsSetInt("bounces", renderer["bounces"])
+			yi.paramsSetBool("useSSS", renderer["useSSS"])
+			
+			if renderer["useSSS"]:
+				yi.paramsSetInt("sssPhotons", renderer["sssPhotons"])
+				yi.paramsSetInt("sssDepth", renderer["sssDepth"])
+				yi.paramsSetInt("singleScatterSamples", renderer["sssSingleScatterSamples"])
+				yi.paramsSetFloat("sssScale", renderer["sssScale"])
+
 
 		elif "Pathtracing" == light_type:
 			yi.paramsSetString("type", "pathtracing");

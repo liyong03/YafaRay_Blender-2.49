@@ -8,7 +8,7 @@ Tooltip: 'YafaRay Export'
 """
 
 __author__ = ['Bert Buchholz, Alvaro Luna, Michele Castigliego, Rodrigo Placencia']
-__version__ = '0.1.x'
+__version__ = '0.1.x-GSoC-Ronnie'
 __url__ = ['http://yafaray.org']
 __bpydoc__ = ""
 
@@ -337,7 +337,7 @@ class clTabMaterial:
 		# lists
 		self.connector = []
 		# class-specific types and lists
-		self.matTypes = ["shinydiffusemat", "glossy", "coated_glossy", "glass", "Rough Glass", "blend"]
+		self.matTypes = ["shinydiffusemat", "glossy", "coated_glossy", "glass", "Rough Glass", "blend", "Translucent (SSS)"]
 		self.BRDFTypes = ["Normal (Lambert)", "Oren-Nayar"]
 
 		self.materials = []
@@ -391,6 +391,12 @@ class clTabMaterial:
 		self.guiMatSigma = Draw.Create(0.0) # number
 		#self.guiMatByMenu = Draw.Create(self.materialsByMenu) # toggle
 		self.guiShowActiveMat = Draw.Create(0) # toggle
+		
+		self.guiMatSSSColor = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSSpecColor = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSAbsorb = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSScatter = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSIor = Draw.Create(1.0) # number
 
 		for mat in Blender.Material.Get():
 			self.setPropertyList(mat)
@@ -448,7 +454,12 @@ class clTabMaterial:
 			(self.guiMatBlendMat2, "material2", self.materials, matProp),
 			(self.guiMatBlendValue, "blend_value", 0.5, matProp),
 			(self.guiMatDiffuseBRDF, "brdfType", self.BRDFTypes, matProp),
-			(self.guiMatSigma, "sigma", 0.1, matProp)]
+			(self.guiMatSigma, "sigma", 0.1, matProp),
+			(self.guiMatSSSColor, "sssColor", (1, 1, 1), matProp),
+			(self.guiMatSSSSpecColor, "sssSpecularColor", (1, 1, 1), matProp),
+			(self.guiMatSSSAbsorb, "sssSigmaA", (0.01, 0.01, 0.01), matProp),
+			(self.guiMatSSSScatter, "sssSigmaS", (1, 1, 1), matProp),
+			(self.guiMatSSSIor, "sssIOR", 1.1, matProp)]
 
 		#print "mat connecting"
 		 # add missing parameters to the property ID
@@ -707,7 +718,7 @@ class clTabMaterial:
 				#	height, 320, guiWidgetHeight, self.guiMatExponent.val, 1.0, 10000.0, 0, "Exponent of glass roughness (lower = rougher)")
 
 				height += guiHeightOffset
-				self.guiMatAlpha = Draw.Slider("Roughtness: ", self.evEdit, 10,
+				self.guiMatAlpha = Draw.Slider("Roughness: ", self.evEdit, 10,
 					height, 320, guiWidgetHeight, self.guiMatAlpha.val, 0.0, 1.0, 0, "Roughness factor (higher = rougher)")
 
 			height += guiHeightOffset
@@ -743,6 +754,35 @@ class clTabMaterial:
 				height, 320, guiWidgetHeight, self.guiMatBlendValue.val, 0.0, 1.0, 0, "The mixing balance, 0 = only material 1 1 = only material 2")
 
 			height += guiHeightOffset
+			
+		elif self.curMat['type'] == "Translucent (SSS)": # Translucent SSS material settings
+			height += guiHeightOffset
+			drawText(10, height + 4, "SSS color:")
+			self.guiMatSSSColor = Draw.ColorPicker(self.evEdit, 100,
+				height, 230, guiWidgetHeight, self.guiMatSSSColor.val, "SSS Color")
+
+			height += guiHeightOffset
+			drawText(10, height + 4, "Specular reflection color:")
+			self.guiMatSSSSpecColor = Draw.ColorPicker(self.evEdit, 100,
+				height, 230, guiWidgetHeight, self.guiMatSSSSpecColor.val, "Specular reflection Color")
+
+			height += guiHeightOffset
+			drawText(10, height + 4, "Absorption color:")
+			self.guiMatSSSAbsorb = Draw.ColorPicker(self.evEdit, 100,
+				height, 230, guiWidgetHeight, self.guiMatSSSAbsorb.val, "Absorption Color")
+
+			height += guiHeightOffset
+			drawText(10, height + 4, "Scatter color:")
+			self.guiMatSSSScatter = Draw.ColorPicker(self.evEdit, 100,
+				height, 230, guiWidgetHeight, self.guiMatSSSScatter.val, "Scatter Color")
+
+			height += guiHeightOffset
+			self.guiMatSSSIor = Draw.Slider("IOR: ", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSIor.val, 1.0, 30.0, 0, "Index of refraction for SSS")
+
+			height += guiHeightOffset
+			height = drawTextLine(10, height, "Mappable texture slots, Yafaray <- Blender:")
+			height = drawTextLine(10, height, "Material color <- Col")
 
 		PanelHeight = height
 
@@ -1473,6 +1513,12 @@ class clTabRender:
 		self.guiRenderDebugType = Draw.Create(0) # menu
 		self.guiRenderDebugMaps = Draw.Create(0) #toggle
 
+		self.guiRenderSSS = Draw.Create(0) # toggle
+		self.guiRenderSSSPhotons = Draw.Create(100000) # numberbox
+		self.guiRenderSSSDepth = Draw.Create(5) # numberbox
+		self.guiRenderSSSSample = Draw.Create(32) # numberbox
+		self.guiRenderSSSScale = Draw.Create(1.0) # numberbox
+
 		self.setPropertyList()
 
 		#copyParamsOverwrite(self.Renderer, self.scene.properties['YafRay']['Renderer'])
@@ -1597,6 +1643,12 @@ class clTabRender:
 			(self.guiRenderPhFGBounces, "fg_bounces", 3, self.Renderer),
 			(self.guiRenderPhFGSamples, "fg_samples", 16, self.Renderer),
 			(self.guiRenderPhShowMap, "show_map", 0, self.Renderer),
+			# SSS Settings
+			(self.guiRenderSSS, "useSSS", 0, self.Renderer),
+			(self.guiRenderSSSPhotons, "sssPhotons", 100000, self.Renderer),
+			(self.guiRenderSSSDepth, "sssDepth", 5, self.Renderer),
+			(self.guiRenderSSSSample, "sssSingleScatterSamples", 32, self.Renderer),
+			(self.guiRenderSSSScale, "sssScale", 1.0, self.Renderer),
 			# debug integrator
 			(self.guiRenderDebugType, "debugType", self.DebugTypes, self.Renderer),
 			(self.guiRenderDebugMaps, "show_perturbed_normals", 0, self.Renderer)]
@@ -1782,6 +1834,24 @@ class clTabRender:
 				self.guiRenderDirAOColor = Draw.ColorPicker(self.evEdit, 120, height, 210, guiWidgetHeight,
 					self.guiRenderDirAOColor.val, "AO color")
 
+			height += guiHeightOffset
+			self.guiRenderSSS = Draw.Toggle("Use SSS", self.evEdit, 10, height, 150,
+				guiWidgetHeight, self.guiRenderSSS.val, "Enable SSS photon map")
+			if self.guiRenderSSS.val:
+				height += guiHeightOffset
+				self.guiRenderSSSPhotons = Draw.Number("SSS Photons: ", self.evEdit, 10,
+					height, 150, guiWidgetHeight, self.guiRenderSSSPhotons.val, 1, 100000000, "Number of SSS photons to be shot",
+					dummyfunc, 10000)
+				self.guiRenderSSSDepth = Draw.Number("SSS Depth: ", self.evEdit, 180,
+					height, 150, guiWidgetHeight, self.guiRenderSSSDepth.val, 1, 64, "Max. number of photon scattering events")
+
+				height += guiHeightOffset
+				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
+					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 50, "Number of samples for single scattering estimation")
+				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					dummyfunc, 0.01, 4.0)
+
 
 		elif self.LightingTypes[self.guiRenderLightType.val] == "Pathtracing":
 			height = drawSepLineText(10, height, 320, "Pathtracer settings")
@@ -1853,6 +1923,24 @@ class clTabRender:
 				height, 150, guiWidgetHeight, self.guiRenderPhFGSamples.val, 1, 4096, "Number of samples for final gathering")
 			self.guiRenderPhShowMap = Draw.Toggle("Show map", self.evEdit, 180,
 				height, 150, guiWidgetHeight, self.guiRenderPhShowMap.val, "Directly show radiance map (disables final gathering step)")
+				
+			height += guiHeightOffset
+			self.guiRenderSSS = Draw.Toggle("Use SSS", self.evEdit, 10, height, 150,
+				guiWidgetHeight, self.guiRenderSSS.val, "Enable SSS photon map")
+			if self.guiRenderSSS.val:
+				height += guiHeightOffset
+				self.guiRenderSSSPhotons = Draw.Number("SSS Photons: ", self.evEdit, 10,
+					height, 150, guiWidgetHeight, self.guiRenderSSSPhotons.val, 1, 100000000, "Number of SSS photons to be shot",
+					dummyfunc, 10000)
+				self.guiRenderSSSDepth = Draw.Number("SSS Depth: ", self.evEdit, 180,
+					height, 150, guiWidgetHeight, self.guiRenderSSSDepth.val, 1, 64, "Max. number of photon scattering events")
+
+				height += guiHeightOffset
+				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
+					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 50, "Number of samples for single scattering estimation")
+				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					dummyfunc, 0.01, 4.0)
 
 		elif self.LightingTypes[self.guiRenderLightType.val] == "Debug":
 

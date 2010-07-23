@@ -450,6 +450,57 @@ class yafMaterial:
 		ymat = yi.createMaterial(self.namehash(mat))
 		self.materialMap[mat] = ymat
 
+	def writeTranslucentShader(self, mat):
+		yi = self.yi
+		yi.paramsClearAll()
+		props = mat.properties["YafRay"]
+		yi.paramsSetString("type", "translucent")
+		yi.paramsSetFloat("IOR", props["sssIOR"])
+		
+		color = props["sssColor"]
+		specColor = props["sssSpecularColor"]
+		sA = props["sssSigmaA"]
+		sS = props["sssSigmaS"]
+		
+		yi.paramsSetColor("color", color[0], color[1], color[2])
+		yi.paramsSetColor("specular_color", specColor[0], specColor[1], specColor[2])
+		yi.paramsSetColor("sigmaA", sA[0], sA[1], sA[2])
+		yi.paramsSetColor("sigmaS", sS[0], sS[1], sS[2])
+		
+		diffRoot = ''
+		
+		i=0
+		mtextures = mat.getTextures()
+
+		if hasattr(mat, 'enabledTextures'):
+			used_mtextures = []
+			used_idx = mat.enabledTextures
+			for m in used_idx:
+				mtex = mtextures[m]
+				used_mtextures.append(mtex)
+		else:
+			used_mtextures = mtextures
+
+		for mtex in used_mtextures:
+			if mtex == None: continue
+			if mtex.tex == None: continue
+			
+			used = False
+			mappername = "map%x" %i
+			
+			lname = "diff_layer%x" % i
+			if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.mtCol, color):
+				used = True
+				diffRoot = lname
+			if used:
+				self.writeMappingNode(mappername, self.namehash(mtex.tex), mtex)
+			i +=1
+		
+		yi.paramsEndList()
+		if len(diffRoot) > 0:	yi.paramsSetString("diffuse_shader", diffRoot)
+
+		ymat = yi.createMaterial(self.namehash(mat))
+		self.materialMap[mat] = ymat
 
 	def writeMatteShader(self, mat):
 		yi = self.yi
@@ -479,5 +530,7 @@ class yafMaterial:
 			self.writeGlossyShader(mat, True)
 		elif mat.properties["YafRay"]["type"] == "shinydiffusemat":
 			self.writeShinyDiffuseShader(mat)
+		elif mat.properties["YafRay"]["type"] == "Translucent (SSS)":
+			self.writeTranslucentShader(mat)
 		elif mat.properties["YafRay"]["type"] == "blend":
 			self.writeBlendShader(mat)
