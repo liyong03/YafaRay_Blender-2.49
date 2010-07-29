@@ -458,16 +458,29 @@ class yafMaterial:
 		yi.paramsSetFloat("IOR", props["sssIOR"])
 		
 		color = props["sssColor"]
+		glossyColor=props["glossy_color"];
 		specColor = props["sssSpecularColor"]
 		sA = props["sssSigmaA"]
 		sS = props["sssSigmaS"]
+		mD = props["diffuse_reflect"]
+		mG = props["glossy_reflect"]
+		mT = props["sss_transmit"]
+		exp = props["exponent"]
 		
 		yi.paramsSetColor("color", color[0], color[1], color[2])
+		yi.paramsSetColor("glossy_color", glossyColor[0], glossyColor[1], glossyColor[2])
 		yi.paramsSetColor("specular_color", specColor[0], specColor[1], specColor[2])
 		yi.paramsSetColor("sigmaA", sA[0], sA[1], sA[2])
 		yi.paramsSetColor("sigmaS", sS[0], sS[1], sS[2])
+		yi.paramsSetFloat("diffuse_reflect",mD)
+		yi.paramsSetFloat("glossy_reflect",mG)
+		yi.paramsSetFloat("sss_transmit",mT)
+		yi.paramsSetFloat("exponent",exp)
 		
 		diffRoot = ''
+		glossRoot = ''
+		glRefRoot = ''
+		bumpRoot = ''
 		
 		i=0
 		mtextures = mat.getTextures()
@@ -492,12 +505,27 @@ class yafMaterial:
 			if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.mtCol, color):
 				used = True
 				diffRoot = lname
+				lname = "gloss_layer%x" % i
+			if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.mtCsp, glossyColor):
+				used = True
+				glossRoot = lname
+			lname = "glossref_layer%x" % i
+			if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.mtSpec, mG):
+				used = True
+				glRefRoot = lname
+			lname = "bump_layer%x" % i
+			if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.mtNor, [0]):
+				used = True
+				bumpRoot = lname
 			if used:
 				self.writeMappingNode(mappername, self.namehash(mtex.tex), mtex)
 			i +=1
 		
 		yi.paramsEndList()
 		if len(diffRoot) > 0:	yi.paramsSetString("diffuse_shader", diffRoot)
+		if len(glossRoot) > 0:	yi.paramsSetString("glossy_shader", glossRoot)
+		if len(glRefRoot) > 0:	yi.paramsSetString("glossy_reflect_shader", glRefRoot)
+		if len(bumpRoot) > 0:	yi.paramsSetString("bump_shader", bumpRoot)
 
 		ymat = yi.createMaterial(self.namehash(mat))
 		self.materialMap[mat] = ymat

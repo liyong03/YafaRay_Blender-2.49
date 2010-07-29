@@ -393,10 +393,15 @@ class clTabMaterial:
 		self.guiShowActiveMat = Draw.Create(0) # toggle
 		
 		self.guiMatSSSColor = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSGlossyColor = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSSpecColor = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSAbsorb = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSScatter = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSIor = Draw.Create(1.0) # number
+		self.guiMatSSSDiffuse = Draw.Create(1.0) # number
+		self.guiMatSSSGlossy = Draw.Create(1.0) # number
+		self.guiMatSSSTransluency = Draw.Create(1.0) # number
+		self.guiMatSSSExp = Draw.Create(0.0) # number
 
 		for mat in Blender.Material.Get():
 			self.setPropertyList(mat)
@@ -456,10 +461,15 @@ class clTabMaterial:
 			(self.guiMatDiffuseBRDF, "brdfType", self.BRDFTypes, matProp),
 			(self.guiMatSigma, "sigma", 0.1, matProp),
 			(self.guiMatSSSColor, "sssColor", (1, 1, 1), matProp),
+			(self.guiMatSSSGlossyColor,"glossy_color",(1, 1, 1), matProp),
 			(self.guiMatSSSSpecColor, "sssSpecularColor", (1, 1, 1), matProp),
 			(self.guiMatSSSAbsorb, "sssSigmaA", (0.01, 0.01, 0.01), matProp),
 			(self.guiMatSSSScatter, "sssSigmaS", (1, 1, 1), matProp),
-			(self.guiMatSSSIor, "sssIOR", 1.1, matProp)]
+			(self.guiMatSSSIor, "sssIOR", 1.1, matProp),
+			(self.guiMatSSSDiffuse, "diffuse_reflect", 0.5, matProp),
+			(self.guiMatSSSGlossy, "glossy_reflect", 1.0, matProp),
+			(self.guiMatSSSTransluency, "sss_transmit", 0.9, matProp),
+			(self.guiMatSSSExp,"exponent", 400, matProp)]
 
 		#print "mat connecting"
 		 # add missing parameters to the property ID
@@ -760,6 +770,11 @@ class clTabMaterial:
 			drawText(10, height + 4, "SSS color:")
 			self.guiMatSSSColor = Draw.ColorPicker(self.evEdit, 100,
 				height, 230, guiWidgetHeight, self.guiMatSSSColor.val, "SSS Color")
+			
+			height += guiHeightOffset
+			drawText(10, height + 4, "Glossy color:")
+			self.guiMatSSSGlossyColor = Draw.ColorPicker(self.evEdit, 100,
+				height, 230, guiWidgetHeight, self.guiMatSSSGlossyColor.val, "Glossy color")
 
 			height += guiHeightOffset
 			drawText(10, height + 4, "Specular reflection color:")
@@ -779,6 +794,22 @@ class clTabMaterial:
 			height += guiHeightOffset
 			self.guiMatSSSIor = Draw.Slider("IOR: ", self.evEdit, 10,
 				height, 320, guiWidgetHeight, self.guiMatSSSIor.val, 1.0, 30.0, 0, "Index of refraction for SSS")
+			
+			height += guiHeightOffset
+			self.guiMatSSSDiffuse = Draw.Slider("Diffuse reflection:", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSDiffuse.val, 0.0, 1.0, 0, "Diffuse reflection")
+			
+			height += guiHeightOffset
+			self.guiMatSSSGlossy = Draw.Slider("Glossy reflection:", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSGlossy.val, 0.0, 1.0, 0, "Glossy reflection")
+			
+			height += guiHeightOffset
+			self.guiMatSSSTransluency = Draw.Slider("Transluency:", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSTransluency.val, 0.0, 1.0, 0, "Transluency")
+				
+			height += guiHeightOffset
+			self.guiMatSSSExp = Draw.Slider("Exponent:", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSExp.val, 0.0, 100000.0, 0, "Exponent")
 
 			height += guiHeightOffset
 			height = drawTextLine(10, height, "Mappable texture slots, Yafaray <- Blender:")
