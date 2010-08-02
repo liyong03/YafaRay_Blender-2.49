@@ -397,6 +397,7 @@ class clTabMaterial:
 		self.guiMatSSSSpecColor = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSAbsorb = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSScatter = Draw.Create(1.0,1.0,1.0) # color
+		self.guiMatSSSScatterFactor = Draw.Create(1.0) #number
 		self.guiMatSSSIor = Draw.Create(1.0) # number
 		self.guiMatSSSDiffuse = Draw.Create(1.0) # number
 		self.guiMatSSSGlossy = Draw.Create(1.0) # number
@@ -465,6 +466,7 @@ class clTabMaterial:
 			(self.guiMatSSSSpecColor, "sssSpecularColor", (1, 1, 1), matProp),
 			(self.guiMatSSSAbsorb, "sssSigmaA", (0.01, 0.01, 0.01), matProp),
 			(self.guiMatSSSScatter, "sssSigmaS", (1, 1, 1), matProp),
+			(self.guiMatSSSScatterFactor, "sigmaS_factor", 1.0, matProp),
 			(self.guiMatSSSIor, "sssIOR", 1.1, matProp),
 			(self.guiMatSSSDiffuse, "diffuse_reflect", 0.5, matProp),
 			(self.guiMatSSSGlossy, "glossy_reflect", 1.0, matProp),
@@ -790,7 +792,11 @@ class clTabMaterial:
 			drawText(10, height + 4, "Scatter color:")
 			self.guiMatSSSScatter = Draw.ColorPicker(self.evEdit, 100,
 				height, 230, guiWidgetHeight, self.guiMatSSSScatter.val, "Scatter Color")
-
+				
+			height += guiHeightOffset
+			self.guiMatSSSScatterFactor = Draw.Slider("SigmaS factor: ", self.evEdit, 10,
+				height, 320, guiWidgetHeight, self.guiMatSSSScatterFactor.val, 1.0, 30.0, 0, "Index of refraction for SSS")
+			
 			height += guiHeightOffset
 			self.guiMatSSSIor = Draw.Slider("IOR: ", self.evEdit, 10,
 				height, 320, guiWidgetHeight, self.guiMatSSSIor.val, 1.0, 30.0, 0, "Index of refraction for SSS")
@@ -1878,7 +1884,7 @@ class clTabRender:
 
 				height += guiHeightOffset
 				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
-					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 50, "Number of samples for single scattering estimation")
+					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
 				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
 					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
 					dummyfunc, 0.01, 4.0)
@@ -1968,7 +1974,7 @@ class clTabRender:
 
 				height += guiHeightOffset
 				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
-					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 50, "Number of samples for single scattering estimation")
+					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
 				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
 					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
 					dummyfunc, 0.01, 4.0)

@@ -462,6 +462,7 @@ class yafMaterial:
 		specColor = props["sssSpecularColor"]
 		sA = props["sssSigmaA"]
 		sS = props["sssSigmaS"]
+		sSFactor = props["sigmaS_factor"]
 		mD = props["diffuse_reflect"]
 		mG = props["glossy_reflect"]
 		mT = props["sss_transmit"]
@@ -472,6 +473,7 @@ class yafMaterial:
 		yi.paramsSetColor("specular_color", specColor[0], specColor[1], specColor[2])
 		yi.paramsSetColor("sigmaA", sA[0], sA[1], sA[2])
 		yi.paramsSetColor("sigmaS", sS[0], sS[1], sS[2])
+		yi.paramsSetFloat("sigmaS_factor",sSFactor)
 		yi.paramsSetFloat("diffuse_reflect",mD)
 		yi.paramsSetFloat("glossy_reflect",mG)
 		yi.paramsSetFloat("sss_transmit",mT)
