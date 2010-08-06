@@ -1920,6 +1920,24 @@ class clTabRender:
 				guiWidgetHeight, self.guiRenderGIQuality.val, 0, 5000, "Number of path samples per pixel sample" )
 			self.guiRenderNoRecursive = Draw.Toggle("No Recursion", self.evEdit, 180, height, 150,
 				guiWidgetHeight, self.guiRenderNoRecursive.val, "No recursive raytracing, only pure path tracing" )
+				
+			height += guiHeightOffset
+			self.guiRenderSSS = Draw.Toggle("Use SSS", self.evEdit, 10, height, 150,
+				guiWidgetHeight, self.guiRenderSSS.val, "Enable SSS photon map")
+			if self.guiRenderSSS.val:
+				height += guiHeightOffset
+				self.guiRenderSSSPhotons = Draw.Number("SSS Photons: ", self.evEdit, 10,
+					height, 150, guiWidgetHeight, self.guiRenderSSSPhotons.val, 1, 100000000, "Number of SSS photons to be shot",
+					dummyfunc, 10000)
+				self.guiRenderSSSDepth = Draw.Number("SSS Depth: ", self.evEdit, 180,
+					height, 150, guiWidgetHeight, self.guiRenderSSSDepth.val, 1, 64, "Max. number of photon scattering events")
+
+				height += guiHeightOffset
+				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
+					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
+				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					dummyfunc, 0.01, 4.0)
 
 		elif self.LightingTypes[self.guiRenderLightType.val] == "Photon mapping":
 			height = drawSepLineText(10, height, 320, "Photon settings")

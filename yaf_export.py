@@ -459,6 +459,7 @@ class yafrayRender:
 			yi.paramsSetInt("path_samples", renderer["path_samples"])
 			yi.paramsSetInt("bounces", renderer["bounces"])
 			yi.paramsSetBool("no_recursive", renderer["no_recursive"])
+			yi.paramsSetBool("useSSS", renderer["useSSS"])
 			
 			caus_type = renderer["caustic_type"]
 			photons = False;
@@ -478,6 +479,12 @@ class yafrayRender:
 				yi.paramsSetInt("caustic_mix", renderer["caustic_mix"])
 				yi.paramsSetInt("caustic_depth", renderer["caustic_depth"])
 				yi.paramsSetFloat("caustic_radius", renderer["caustic_radius"])
+			
+			if renderer["useSSS"]:
+				yi.paramsSetInt("sssPhotons", renderer["sssPhotons"])
+				yi.paramsSetInt("sssDepth", renderer["sssDepth"])
+				yi.paramsSetInt("singleScatterSamples", renderer["sssSingleScatterSamples"])
+				yi.paramsSetFloat("sssScale", renderer["sssScale"])
 
 		elif "Bidir. Pathtr." == light_type or "Bidirectional" == light_type or "Bidirectional (EXPERIMENTAL)" == light_type:
 			yi.paramsSetString("type", "bidirectional")
