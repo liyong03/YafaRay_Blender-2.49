@@ -398,7 +398,7 @@ class clTabMaterial:
 		self.guiMatSSSAbsorb = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSScatter = Draw.Create(1.0,1.0,1.0) # color
 		self.guiMatSSSScatterFactor = Draw.Create(1.0) #number
-		self.guiMatSSSIor = Draw.Create(1.0) # number
+		self.guiMatSSSIor = Draw.Create(1.3) # number
 		self.guiMatSSSDiffuse = Draw.Create(1.0) # number
 		self.guiMatSSSGlossy = Draw.Create(1.0) # number
 		self.guiMatSSSTransluency = Draw.Create(1.0) # number
@@ -467,10 +467,10 @@ class clTabMaterial:
 			(self.guiMatSSSAbsorb, "sssSigmaA", (0.01, 0.01, 0.01), matProp),
 			(self.guiMatSSSScatter, "sssSigmaS", (1, 1, 1), matProp),
 			(self.guiMatSSSScatterFactor, "sigmaS_factor", 1.0, matProp),
-			(self.guiMatSSSIor, "sssIOR", 1.1, matProp),
+			(self.guiMatSSSIor, "sssIOR", 1.3, matProp),
 			(self.guiMatSSSDiffuse, "diffuse_reflect", 0.5, matProp),
 			(self.guiMatSSSGlossy, "glossy_reflect", 1.0, matProp),
-			(self.guiMatSSSTransluency, "sss_transmit", 0.9, matProp),
+			(self.guiMatSSSTransluency, "sss_transmit", 1.0, matProp),
 			(self.guiMatSSSExp,"exponent", 400, matProp)]
 
 		#print "mat connecting"
@@ -769,9 +769,9 @@ class clTabMaterial:
 			
 		elif self.curMat['type'] == "Translucent (SSS)": # Translucent SSS material settings
 			height += guiHeightOffset
-			drawText(10, height + 4, "SSS color:")
+			drawText(10, height + 4, "Diffuse color:")
 			self.guiMatSSSColor = Draw.ColorPicker(self.evEdit, 100,
-				height, 230, guiWidgetHeight, self.guiMatSSSColor.val, "SSS Color")
+				height, 230, guiWidgetHeight, self.guiMatSSSColor.val, "Diffuse Color")
 			
 			height += guiHeightOffset
 			drawText(10, height + 4, "Glossy color:")
@@ -779,9 +779,9 @@ class clTabMaterial:
 				height, 230, guiWidgetHeight, self.guiMatSSSGlossyColor.val, "Glossy color")
 
 			height += guiHeightOffset
-			drawText(10, height + 4, "Specular reflection color:")
+			drawText(10, height + 4, "Specular color:")
 			self.guiMatSSSSpecColor = Draw.ColorPicker(self.evEdit, 100,
-				height, 230, guiWidgetHeight, self.guiMatSSSSpecColor.val, "Specular reflection Color")
+				height, 230, guiWidgetHeight, self.guiMatSSSSpecColor.val, "Specular Color")
 
 			height += guiHeightOffset
 			drawText(10, height + 4, "Absorption color:")
@@ -1554,7 +1554,7 @@ class clTabRender:
 		self.guiRenderSSSPhotons = Draw.Create(100000) # numberbox
 		self.guiRenderSSSDepth = Draw.Create(5) # numberbox
 		self.guiRenderSSSSample = Draw.Create(32) # numberbox
-		self.guiRenderSSSScale = Draw.Create(1.0) # numberbox
+		self.guiRenderSSSScale = Draw.Create(30.0) # numberbox
 
 		self.setPropertyList()
 
@@ -1685,7 +1685,7 @@ class clTabRender:
 			(self.guiRenderSSSPhotons, "sssPhotons", 100000, self.Renderer),
 			(self.guiRenderSSSDepth, "sssDepth", 5, self.Renderer),
 			(self.guiRenderSSSSample, "sssSingleScatterSamples", 32, self.Renderer),
-			(self.guiRenderSSSScale, "sssScale", 1.0, self.Renderer),
+			(self.guiRenderSSSScale, "sssScale", 30.0, self.Renderer),
 			# debug integrator
 			(self.guiRenderDebugType, "debugType", self.DebugTypes, self.Renderer),
 			(self.guiRenderDebugMaps, "show_perturbed_normals", 0, self.Renderer)]

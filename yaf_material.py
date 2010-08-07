@@ -482,6 +482,8 @@ class yafMaterial:
 		diffRoot = ''
 		glossRoot = ''
 		glRefRoot = ''
+		transpRoot = ''
+		translRoot = ''
 		bumpRoot = ''
 		
 		i=0
@@ -507,14 +509,22 @@ class yafMaterial:
 			if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.mtCol, color):
 				used = True
 				diffRoot = lname
-				lname = "gloss_layer%x" % i
+			lname = "gloss_layer%x" % i
 			if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.mtCsp, glossyColor):
 				used = True
 				glossRoot = lname
 			lname = "glossref_layer%x" % i
-			if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.mtSpec, mG):
+			if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.mtSpec, [mG]):
 				used = True
 				glRefRoot = lname
+			lname = "transp_layer%x" % i
+			if self.writeTexLayer(lname, mappername, transpRoot, mtex, mtex.mtAlpha, sA):
+				used = True
+				transpRoot = lname
+			lname = "translu_layer%x" % i
+			if self.writeTexLayer(lname, mappername, translRoot, mtex, mtex.mtTranslu, sS):
+				used = True
+				translRoot = lname
 			lname = "bump_layer%x" % i
 			if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.mtNor, [0]):
 				used = True
@@ -528,6 +538,8 @@ class yafMaterial:
 		if len(glossRoot) > 0:	yi.paramsSetString("glossy_shader", glossRoot)
 		if len(glRefRoot) > 0:	yi.paramsSetString("glossy_reflect_shader", glRefRoot)
 		if len(bumpRoot) > 0:	yi.paramsSetString("bump_shader", bumpRoot)
+		if len(transpRoot) > 0:	yi.paramsSetString("sigmaA_shader", transpRoot)
+		if len(translRoot) > 0:	yi.paramsSetString("sigmaS_shader", translRoot)
 
 		ymat = yi.createMaterial(self.namehash(mat))
 		self.materialMap[mat] = ymat
