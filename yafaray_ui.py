@@ -1886,7 +1886,7 @@ class clTabRender:
 				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
 					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
 				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
-					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 1000.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
 					dummyfunc, 0.01, 4.0)
 
 
@@ -1936,7 +1936,7 @@ class clTabRender:
 				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
 					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
 				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
-					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 1000.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
 					dummyfunc, 0.01, 4.0)
 
 		elif self.LightingTypes[self.guiRenderLightType.val] == "Photon mapping":
@@ -1994,7 +1994,7 @@ class clTabRender:
 				self.guiRenderSSSSample = Draw.Number("Single Scattering Samples: ", self.evEdit, 10, height,
 					150, guiWidgetHeight, self.guiRenderSSSSample.val, 0, 256, "Number of samples for single scattering estimation")
 				self.guiRenderSSSScale = Draw.Number("Scale: ", self.evEdit, 180, height,
-					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 100.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+					150, guiWidgetHeight, self.guiRenderSSSScale.val, 0.0001, 1000.0, "Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
 					dummyfunc, 0.01, 4.0)
 
 		elif self.LightingTypes[self.guiRenderLightType.val] == "Debug":
